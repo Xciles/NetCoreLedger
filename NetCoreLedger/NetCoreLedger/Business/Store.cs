@@ -16,7 +16,7 @@ namespace NetCoreLedger.Business
         private string _path;
 
         private uint _lastPosition = 0;
-        private int _bufferSize = 1024 * 4;
+        public const int BufferSize = 1024 * 4;
 
 
         public Store(string folder)
@@ -61,20 +61,20 @@ namespace NetCoreLedger.Business
             return stored.Position;
         }
 
-        public IEnumerable<StorageItem> EnumerateFile(uint startPosition = 0, uint endPosition = uint.MaxValue)
+        public IEnumerable<StorageItem> EnumerateFile(bool headerOnly = false, uint startPosition = 0, uint endPosition = uint.MaxValue)
         {
-            using (var fs = new FileStream(_path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite, _bufferSize))
+            using (var fs = new FileStream(_path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite, BufferSize))
             {
                 fs.Position = startPosition;
 
-                foreach (var block in Enumerate(fs, endPosition))
+                foreach (var block in Enumerate(fs, headerOnly, endPosition))
                 {
                     yield return block;
                 }
             }
         }
 
-        private IEnumerable<StorageItem> Enumerate(Stream stream, uint endPosition)
+        private IEnumerable<StorageItem> Enumerate(Stream stream, bool headerOnly, uint endPosition)
         {
             if (stream.Position > endPosition)
             {
@@ -84,7 +84,7 @@ namespace NetCoreLedger.Business
             var len = stream.Length;
             while (stream.Position < len)
             {
-                var storedItem = ReadStorageItem(stream, (uint)stream.Position);
+                var storedItem = ReadStorageItem(stream, headerOnly, (uint)stream.Position);
 
                 yield return storedItem;
                 if (stream.Position >= endPosition)
@@ -92,10 +92,10 @@ namespace NetCoreLedger.Business
             }
         }
 
-        private StorageItem ReadStorageItem(Stream stream, uint position)
+        private StorageItem ReadStorageItem(Stream stream, bool headerOnly, uint position)
         {
             var item = new StorageItem(position);
-            item.ReadFromStream(stream);
+            item.ReadFromStream(stream, headerOnly);
             return item;
         }
 
@@ -111,6 +111,21 @@ namespace NetCoreLedger.Business
                 fs.Position = item.Position;
                 item.WriteToStream(fs);
             }
+        }
+
+        public void SyncChain(Chain chain)
+        {
+            var currentHeaders = new Dictionary<string, BlockHeader>();
+
+            // we build that chain
+            foreach (var storageItem in EnumerateFile(true))
+            {
+                chain.
+
+                currentHeaders.Add(storageItem.Block.Header.GetHash(), storageItem.Block.Header);
+            }
+
+
         }
     }
 
@@ -152,6 +167,8 @@ namespace NetCoreLedger.Business
 
     public class StorageItem
     {
+        private static byte[] _readableBuffer = new byte[Store.BufferSize];
+
         public StorageHeader Header { get; set; }
         public Block Block { get; set; }
         public uint Position { get; set; }
@@ -183,10 +200,30 @@ namespace NetCoreLedger.Business
             Block.WriteToStream(ms);
         }
 
-        public void ReadFromStream(Stream stream)
+        public void ReadFromStream(Stream stream, bool headerOnly)
         {
             Header.ReadFromStream(stream);
-            Block.ReadFromStream(stream, Header.Size);
+            if (!headerOnly)
+            {
+                Block.ReadFromStream(stream, Header.Size);
+            }
+            else
+            {
+                var beginPosition = stream.Position;
+                Block.Header.ReadFromStream(stream);
+
+                var remaining = (int) (Header.Size - (stream.Position - beginPosition));
+                if (remaining > Store.BufferSize)
+                {
+                    // we read in sections of Store.BufferSize, since we don't have that already we can use position to be efficient
+                    // FE https://stackoverflow.com/questions/3780704/why-does-filestream-position-increment-in-multiples-of-1024
+                    stream.Position += remaining;
+                }
+                else
+                {
+                    stream.Read(_readableBuffer, 0, remaining);
+                }
+            }
         }
     }
 }

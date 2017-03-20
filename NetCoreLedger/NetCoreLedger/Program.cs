@@ -12,7 +12,7 @@ namespace NetCoreLedger
         {
             Console.WriteLine("Hello World!");
 
-            TestBlock();
+            //TestBlock();
 
             TestChain();
 
@@ -46,8 +46,7 @@ namespace NetCoreLedger
             
             // save genesis to blockStore
             // save genesis to Chain
-            //
-
+            
             var chain = new Chain(genesis.Header);
 
 

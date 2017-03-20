@@ -10,6 +10,26 @@ using NetCoreLedger.Extensions;
 
 namespace NetCoreLedger.Business
 {
+    public class Ledger
+    {
+        private Chain _chain;
+        private Store _store; 
+        
+
+
+        public Ledger()
+        {
+            // init ledger
+            // Try load from disk and synchronize
+            _chain = new Chain();
+            _store = new Store("data");
+
+
+
+            _store.SyncChain(_chain);
+        }
+    }
+
     public class ChainBlock
     {
         private string _blockHash;
@@ -75,6 +95,11 @@ namespace NetCoreLedger.Business
         {
             _chainByIndex.AddOrUpdate(block.Index, block, (u, chainBlock) => chainBlock);
             _chainByHash.AddOrUpdate(block.BlockHash, block, (s, chainBlock) => chainBlock);
+        }
+
+        public void AddLast(BlockHeader blockHeader)
+        {
+            
         }
     }
 
