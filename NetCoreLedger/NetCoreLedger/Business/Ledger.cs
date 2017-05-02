@@ -47,7 +47,12 @@ namespace NetCoreLedger.Business
 
         public ChainBlock(BlockHeader header, ChainBlock previous)
         {
-            if (previous == null)
+            if (previous == null && header.PreviousHash == Hasher.ZeroSha256) 
+            {
+                // genesis block 
+                _index = 0;
+            }
+            else if (previous == null)
             {
                 if (header.PreviousHash != Hasher.EmtpySha256)
                 {
@@ -75,14 +80,18 @@ namespace NetCoreLedger.Business
     {
         private ConcurrentDictionary<string, ChainBlock> _chainByHash = new ConcurrentDictionary<string, ChainBlock>();
         private ConcurrentDictionary<uint, ChainBlock> _chainByIndex = new ConcurrentDictionary<uint, ChainBlock>();
+        private ChainBlock _last = null;
 
         public ChainBlock Genesis { get { return GetChainBlock(0); } }
+        public ChainBlock Last { get { return _last; } }
+        public uint Count { get { return Last?.Index + 1 ?? 0; } }
+
 
         public Chain() { }
 
         public Chain(BlockHeader genesis)
         {
-            SetChainBlock(new ChainBlock(genesis, null));
+            AddLast(genesis);
         }
 
         private ChainBlock GetChainBlock(uint index)
@@ -99,7 +108,22 @@ namespace NetCoreLedger.Business
 
         public void AddLast(BlockHeader blockHeader)
         {
-            
+            var chainBlock = new ChainBlock(blockHeader, Last);
+
+            _last = chainBlock;
+
+            SetChainBlock(_last);
+        }
+
+        public IEnumerable<BlockHeader> Enumerate()
+        {
+            var current = Last;
+            while (current != null)
+            {
+                yield return current.Header;
+
+                current = current.Previous;
+            }
         }
     }
 
@@ -240,6 +264,22 @@ namespace NetCoreLedger.Business
             _header.BlockTimestamp = timeStamp;
         }
 
+        public Block(string previousHash, uint index, uint timeStamp)
+        {
+            _header.PreviousHash = previousHash;
+            _header.DataHash = Hasher.EmtpySha256;
+            _header.Index = index;
+            _header.BlockTimestamp = timeStamp;
+        }
+
+        public Block(uint index, uint timeStamp)
+        {
+            _header.PreviousHash = Hasher.ZeroSha256;
+            _header.DataHash = Hasher.EmtpySha256;
+            _header.Index = index;
+            _header.BlockTimestamp = timeStamp;
+        }
+
         public void WriteToStream(Stream ms)
         {
             // write the header
@@ -271,5 +311,20 @@ namespace NetCoreLedger.Business
                 return (uint) ms.Length;
             }
         }
+
+        public void ValidateDataIntegrity()
+        {
+            // Check the data
+            var dataHash = Hasher.Sha256(Encoding.UTF8.GetBytes(Data));
+            if (!dataHash.Equals(Header.DataHash))
+            {
+                throw new DataValidityException();
+            }
+        }
+    }
+
+    public class DataValidityException : Exception
+    {
+        
     }
 }

@@ -115,17 +115,21 @@ namespace NetCoreLedger.Business
 
         public void SyncChain(Chain chain)
         {
-            var currentHeaders = new Dictionary<string, BlockHeader>();
-
             // we build that chain
             foreach (var storageItem in EnumerateFile(true))
             {
-                chain.
+                // validate block 
+                storageItem.Block.ValidateDataIntegrity();
+                if (storageItem.Block.Header.PreviousHash != Hasher.ZeroSha256 && !chain.Last.BlockHash.Equals(storageItem.Block.Header.PreviousHash))
+                {
+                    throw new DataValidityException();
+                }
 
-                currentHeaders.Add(storageItem.Block.Header.GetHash(), storageItem.Block.Header);
+                // add to chain
+                chain.AddLast(storageItem.Block.Header);
             }
 
-
+            
         }
     }
 

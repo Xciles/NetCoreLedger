@@ -40,15 +40,43 @@ namespace NetCoreLedger
             store.Append(block.Header.GetHash(), block);
         }
 
+        private static void TestFill()
+        {
+            var store = new Store("Test");
+
+            var genesis = new Block(0, DateTime.UtcNow.ToUnixTimeSeconds());
+            //store.Append(block.Header.GetHash(), block);
+        }
+
         private static void TestChain()
         {
-            var genesis = new Block(Hasher.EmtpySha256, Hasher.EmtpySha256, 0, DateTime.UtcNow.ToUnixTimeSeconds());
-            
+            var genesis = new Block(0, DateTime.UtcNow.ToUnixTimeSeconds());
+
             // save genesis to blockStore
             // save genesis to Chain
-            
-            var chain = new Chain(genesis.Header);
 
+            var chain = new Chain(genesis.Header);
+            var newBlock = new Block(chain.Last.Header.GetHash(), chain.Count, DateTime.UtcNow.ToUnixTimeSeconds())
+            {
+                Data = "This is some test data!"
+            };
+            chain.AddLast(newBlock.Header);
+            var newBlock2 = new Block(chain.Last.Header.GetHash(), chain.Count, DateTime.UtcNow.ToUnixTimeSeconds())
+            {
+                Data = "More test data!"
+            };
+            chain.AddLast(newBlock2.Header);
+            var newBlock3 = new Block(chain.Last.Header.GetHash(), chain.Count, DateTime.UtcNow.ToUnixTimeSeconds())
+            {
+                Data = "Even more test data!"
+            };
+            chain.AddLast(newBlock3.Header);
+
+
+            foreach (var blockHeader in chain.Enumerate())
+            {
+                
+            }
 
         }
 

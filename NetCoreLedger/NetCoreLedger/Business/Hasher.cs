@@ -5,6 +5,7 @@ namespace NetCoreLedger.Business
 {
     public static class Hasher
     {
+        public static string ZeroSha256 = "0000000000000000000000000000000000000000000000000000000000000000";
         public static string EmtpySha256 = Sha256(Encoding.UTF8.GetBytes(""));
 
         public static string Sha256(byte[] data)
