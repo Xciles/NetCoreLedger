@@ -3,7 +3,14 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.26228.4
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetCoreLedger", "NetCoreLedger\NetCoreLedger.csproj", "{5DC437E9-9C3E-4E95-9DCD-86EA6CBD2035}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NetCoreLedger", "NetCoreLedger\NetCoreLedger.csproj", "{5DC437E9-9C3E-4E95-9DCD-86EA6CBD2035}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetCoreLedger.Tests", "NetCoreLedger.Tests\NetCoreLedger.Tests.csproj", "{FDAF9E75-175E-48AE-995A-72C1285A2387}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_SolutionFiles", "_SolutionFiles", "{8ED20533-7810-4F05-AE09-8AA05E1D6496}"
+	ProjectSection(SolutionItems) = preProject
+		NetCoreLedger.testsettings = NetCoreLedger.testsettings
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +22,10 @@ Global
 		{5DC437E9-9C3E-4E95-9DCD-86EA6CBD2035}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5DC437E9-9C3E-4E95-9DCD-86EA6CBD2035}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5DC437E9-9C3E-4E95-9DCD-86EA6CBD2035}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FDAF9E75-175E-48AE-995A-72C1285A2387}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FDAF9E75-175E-48AE-995A-72C1285A2387}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FDAF9E75-175E-48AE-995A-72C1285A2387}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FDAF9E75-175E-48AE-995A-72C1285A2387}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

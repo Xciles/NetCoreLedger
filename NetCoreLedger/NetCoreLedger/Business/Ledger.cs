@@ -125,6 +125,8 @@ namespace NetCoreLedger.Business
                 current = current.Previous;
             }
         }
+
+        public ChainBlock this[uint i] => GetChainBlock(i);
     }
 
     public class BlockHeader
