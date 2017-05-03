@@ -1,7 +1,7 @@
 ﻿using System;
-using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NetCoreLedger.Business;
+using NetCoreLedger.Domain;
 using NetCoreLedger.Extensions;
 
 namespace NetCoreLedger.Tests

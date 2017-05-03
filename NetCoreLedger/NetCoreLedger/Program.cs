@@ -2,6 +2,7 @@
 using System.IO;
 using Microsoft.AspNetCore.Hosting;
 using NetCoreLedger.Business;
+using NetCoreLedger.Domain;
 using NetCoreLedger.Extensions;
 
 namespace NetCoreLedger
