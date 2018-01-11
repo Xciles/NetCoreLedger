@@ -6,13 +6,13 @@ namespace NetCoreLedger.Business
 {
     public class Chain
     {
-        private ConcurrentDictionary<string, ChainBlock> _chainByHash = new ConcurrentDictionary<string, ChainBlock>();
-        private ConcurrentDictionary<uint, ChainBlock> _chainByIndex = new ConcurrentDictionary<uint, ChainBlock>();
+        private readonly ConcurrentDictionary<string, ChainBlock> _chainByHash = new ConcurrentDictionary<string, ChainBlock>();
+        private readonly ConcurrentDictionary<uint, ChainBlock> _chainByIndex = new ConcurrentDictionary<uint, ChainBlock>();
         private ChainBlock _last = null;
 
-        public ChainBlock Genesis { get { return GetChainBlock(0); } }
-        public ChainBlock Last { get { return _last; } }
-        public uint Count { get { return Last?.Index + 1 ?? 0; } }
+        public ChainBlock Genesis => GetChainBlock(0);
+        public ChainBlock Last => _last;
+        public uint Count => Last?.Index + 1 ?? 0;
 
 
         public Chain() { }
