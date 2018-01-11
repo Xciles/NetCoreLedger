@@ -32,7 +32,7 @@ namespace NetCoreLedger.Tests
         public void GenesisChainTest()
         {
             var time = DateTime.UtcNow.ToUnixTimeSeconds();
-            var genesis = new Block(0, DateTime.UtcNow.ToUnixTimeSeconds());
+            var genesis = Block.GenerateGenesis();
             var chain = new Chain(genesis.Header);
 
             Assert.IsTrue(chain.Count == 1);
@@ -51,7 +51,7 @@ namespace NetCoreLedger.Tests
         public void BasicChainTest()
         {
             var time = DateTime.UtcNow.ToUnixTimeSeconds();
-            var genesisBlock = new Block(0, DateTime.UtcNow.ToUnixTimeSeconds());
+            var genesisBlock = Block.GenerateGenesis();
 
             // save genesis to blockStore
             // save genesis to Chain

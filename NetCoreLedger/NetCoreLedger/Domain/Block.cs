@@ -68,15 +68,7 @@ namespace NetCoreLedger.Domain
             _header.Index = index;
             _header.BlockTimestamp = timeStamp;
         }
-
-        public Block(uint index, uint timeStamp)
-        {
-            _header.PreviousHash = Hasher.ZeroSha256;
-            _header.DataHash = Hasher.EmtpySha256;
-            _header.Index = index;
-            _header.BlockTimestamp = timeStamp;
-        }
-
+        
         public void WriteToStream(Stream ms)
         {
             // write the header
@@ -117,6 +109,18 @@ namespace NetCoreLedger.Domain
             {
                 throw new DataValidityException();
             }
+        }
+
+        public static Block GenerateGenesis()
+        {
+            var block = new Block();
+
+            block.Header.PreviousHash = Hasher.ZeroSha256;
+            block.Header.DataHash = Hasher.EmtpySha256;
+            block.Header.Index = 0;
+            block.Header.BlockTimestamp = DateTime.UtcNow.ToUnixTimeSeconds();
+
+            return block;
         }
     }
 }

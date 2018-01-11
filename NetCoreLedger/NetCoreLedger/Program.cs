@@ -45,13 +45,13 @@ namespace NetCoreLedger
         {
             var store = new Store("Test");
 
-            var genesis = new Block(0, DateTime.UtcNow.ToUnixTimeSeconds());
+            var genesis = Block.GenerateGenesis();
             //store.Append(block.Header.GetHash(), block);
         }
 
         private static void TestChain()
         {
-            var genesis = new Block(0, DateTime.UtcNow.ToUnixTimeSeconds());
+            var genesis = Block.GenerateGenesis();
 
             // save genesis to blockStore
             // save genesis to Chain
