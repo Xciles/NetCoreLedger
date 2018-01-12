@@ -13,7 +13,7 @@ namespace NetCoreLedger
         {
             Console.WriteLine("Hello World!");
 
-            //TestBlock();
+            TestBlock();
 
             TestChain();
 
@@ -22,7 +22,7 @@ namespace NetCoreLedger
 
         private static void TestBlock()
         {
-            var block = new Block();
+            //var block = new Block();
             //block.Data = "iuHWEILTUHWETIluhwe twiouethg o8972ht o8wieugyt LETI o8927tge wlikutyO*& TG@LTiug wo8t7gw et" +
             //             "wiyet we8ot7y wet" +
             //             "we t" +
@@ -35,10 +35,35 @@ namespace NetCoreLedger
 
             foreach (var item in store.EnumerateFile())
             {
-
+                
             }
 
-            store.Append(block.Header.GetHash(), block);
+            var genesis = Block.GenerateGenesis();
+            var newBlock = new Block(genesis.Header.GetHash(), 1, DateTime.UtcNow.ToUnixTimeSeconds())
+            {
+                Data = "This is some test data!"
+            };
+            var newBlock2 = new Block(newBlock.Header.GetHash(), 2, DateTime.UtcNow.ToUnixTimeSeconds())
+            {
+                Data = "This is some test data!!"
+            };
+            var newBlock3 = new Block(newBlock2.Header.GetHash(), 3, DateTime.UtcNow.ToUnixTimeSeconds())
+            {
+                Data = "This is some test data!!!"
+            };
+
+            store.Append(genesis);
+            store.Append(newBlock);
+            store.Append(newBlock2);
+            store.Append(newBlock3);
+
+            foreach (var storageItem in store.EnumerateFile())
+            {
+                
+            }
+
+            var searchedItem = store.FindBlockById(newBlock2.Header.GetHash());
+
         }
 
         private static void TestFill()

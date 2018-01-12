@@ -63,5 +63,29 @@ namespace NetCoreLedger.Domain
                 }
             }
         }
+
+        public void ReadFromStreamForId(Stream stream, string idHash)
+        {
+            Header.ReadFromStream(stream);
+
+            if (Header.IdHash == idHash)
+            {
+                Block.ReadFromStream(stream, Header.Size);
+            }
+            else
+            {
+                var remaining = (int)(Header.Size);
+                if (remaining > Store.BufferSize)
+                {
+                    // we read in sections of Store.BufferSize, since we don't have that already we can use position to be efficient
+                    // FE https://stackoverflow.com/questions/3780704/why-does-filestream-position-increment-in-multiples-of-1024
+                    stream.Position += remaining;
+                }
+                else
+                {
+                    stream.Read(_readableBuffer, 0, remaining);
+                }
+            }
+        }
     }
 }

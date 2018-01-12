@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using NetCoreLedger.Domain;
 using NetCoreLedger.Utils;
@@ -7,26 +8,28 @@ namespace NetCoreLedger.Business
 {
     public class Store
     {
+        private readonly Dictionary<string, uint> _idHashPositionLookup = new Dictionary<string, uint>();
         private const string FileName = "ridb.rdb";
-
-        private readonly string _folder;
-        private string _path;
+        private readonly string _path;
 
         private uint _lastPosition = 0;
         public const int BufferSize = 1024 * 4;
 
-
         public Store(string folder)
         {
-            _folder = folder;
-
             // Setup
-            if (!Directory.Exists(_folder))
+            if (!Directory.Exists(folder))
             {
-                Directory.CreateDirectory(_folder);
+                Directory.CreateDirectory(folder);
             }
 
-            _path = Path.Combine(_folder, FileName);
+            _path = Path.Combine(folder, FileName);
+
+            if (!File.Exists(_path))
+            {
+                var file = File.Create(_path);
+                file.Close();
+            }
         }
 
         private uint SeekEnd()
@@ -49,12 +52,15 @@ namespace NetCoreLedger.Business
             return _lastPosition;
         }
 
-        public uint Append(string idHash, Block block)
+        public uint Append(Block block)
         {
             var position = SeekEnd();
-            var stored = CreateStorageItem(idHash, position, block);
+            var stored = CreateStorageItem(block.Header.GetHash(), position, block);
             Write(stored);
             _lastPosition = position + stored.Size();
+
+            _idHashPositionLookup.Add(block.Header.GetHash(), position);
+
             return stored.Position;
         }
 
@@ -124,7 +130,55 @@ namespace NetCoreLedger.Business
 
                 // add to chain
                 chain.AddLast(storageItem.Block.Header);
+
+                _idHashPositionLookup.Add(storageItem.Block.Header.GetHash(), storageItem.Position);
             }
+        }
+
+        public void RemoveBackingFile()
+        {
+            try
+            {
+                if (File.Exists(_path))
+                {
+                    File.Delete(_path);
+                }
+            }
+            catch (FileNotFoundException)
+            {
+            }
+        }
+
+        public StorageItem FindBlockById(string idHash, uint startPosition = 0, uint endPosition = uint.MaxValue)
+        {
+            if (_idHashPositionLookup.TryGetValue(idHash, out var position))
+            {
+                return FindBlockByPosition(position, endPosition);
+            }
+
+            return null;
+        }
+
+        public StorageItem FindBlockByPosition(uint startPosition = 0, uint endPosition = uint.MaxValue)
+        {
+            using (var fs = new FileStream(_path, FileMode.Open, FileAccess.Read, FileShare.Read, BufferSize))
+            {
+                fs.Position = startPosition;
+
+                if (fs.Position > endPosition)
+                {
+                    return null;
+                }
+
+                return ReadStorageItemForPosition(fs, startPosition);
+            }
+        }
+
+        private StorageItem ReadStorageItemForPosition(Stream stream, uint position)
+        {
+            var item = new StorageItem(position);
+            item.ReadFromStream(stream, false);
+            return item;
         }
     }
 }
