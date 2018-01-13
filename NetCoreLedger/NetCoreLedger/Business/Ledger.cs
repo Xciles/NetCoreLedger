@@ -68,6 +68,7 @@ namespace NetCoreLedger.Business
             {
                 Data = data
             };
+
             block.ValidateDataIntegrity();
             if (block.Header.PreviousHash != _chain.Last.Header.GetHash()) throw new BlockInvalidException();
             if (block.Header.Index != _chain.Last.Header.Index + 1) throw new BlockInvalidException();
