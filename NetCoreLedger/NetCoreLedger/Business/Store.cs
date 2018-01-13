@@ -180,5 +180,21 @@ namespace NetCoreLedger.Business
             item.ReadFromStream(stream, false);
             return item;
         }
+
+        public void Validate()
+        {
+            if (!File.Exists(_path)) throw new StoreInvalidException();
+
+            StorageItem previous = null;
+            foreach (var storageItem in EnumerateFile())
+            {
+                if (storageItem.Header.IdHash != storageItem.Block.Header.GetHash()) throw new StoreInvalidException();
+                storageItem.Block.ValidateDataIntegrity();
+
+                if (previous != null && previous.Block.Header.PreviousHash != storageItem.Block.Header.GetHash()) throw new StoreInvalidException();
+
+                previous = storageItem;
+            }
+        }
     }
 }

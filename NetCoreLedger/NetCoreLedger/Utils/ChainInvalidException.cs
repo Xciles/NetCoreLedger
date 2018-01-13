@@ -6,4 +6,12 @@ namespace NetCoreLedger.Utils
     {
         
     }
+    public class StoreInvalidException : Exception
+    {
+        
+    }
+    public class LedgerInvalidException : Exception
+    {
+        
+    }
 }

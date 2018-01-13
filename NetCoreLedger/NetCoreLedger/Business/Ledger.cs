@@ -1,4 +1,5 @@
 ﻿using NetCoreLedger.Domain;
+using NetCoreLedger.Utils;
 
 namespace NetCoreLedger.Business
 {
@@ -37,11 +38,20 @@ namespace NetCoreLedger.Business
             // Add to chain
             // Add to store
             _chain.Validate();
+            _store.Validate();
 
+            Validate();
         }
 
         private void Validate()
         {
+            foreach (var blockHeader in _chain.Enumerate())
+            {
+                var storageItem = _store.FindBlockById(blockHeader.GetHash());
+                if (storageItem == null) throw new LedgerInvalidException();
+
+                if (storageItem.Block.Header.GetHash() != blockHeader.GetHash()) throw new LedgerInvalidException();
+            }
         }
     }
 }

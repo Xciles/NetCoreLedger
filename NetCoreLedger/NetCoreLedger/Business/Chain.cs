@@ -71,7 +71,8 @@ namespace NetCoreLedger.Business
                 else
                 {
                     if (current.BlockHash != current.Header.GetHash()) throw new ChainInvalidException();
-                    if (current.Previous.BlockHash != current.Header.GetHash()) throw new ChainInvalidException();
+                    if (current.Previous.BlockHash != current.Header.PreviousHash) throw new ChainInvalidException();
+                    if (current.Previous.Header.PreviousHash != current.Header.PreviousHash) throw new ChainInvalidException();
                     if (current.Previous.Index + 1 != current.Index) throw new ChainInvalidException();
                 }
 
