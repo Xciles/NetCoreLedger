@@ -14,4 +14,8 @@ namespace NetCoreLedger.Utils
     {
         
     }
+    public class BlockInvalidException : Exception
+    {
+        
+    }
 }

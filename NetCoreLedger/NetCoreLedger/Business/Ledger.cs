@@ -1,4 +1,6 @@
-﻿using NetCoreLedger.Domain;
+﻿using System;
+using NetCoreLedger.Domain;
+using NetCoreLedger.Extensions;
 using NetCoreLedger.Utils;
 
 namespace NetCoreLedger.Business
@@ -41,6 +43,37 @@ namespace NetCoreLedger.Business
             _store.Validate();
 
             Validate();
+
+            // validate block to add
+            block.ValidateDataIntegrity();
+            if (block.Header.PreviousHash != _chain.Last.Header.GetHash()) throw new BlockInvalidException();
+            if (block.Header.Index != _chain.Last.Header.Index + 1) throw new BlockInvalidException();
+
+            _chain.AddLast(block.Header);
+            _store.Append(block);
+        }
+
+        public void AddBlockByData(string data)
+        {
+            // Validate chain
+            // Add to chain
+            // Add to store
+            _chain.Validate();
+            _store.Validate();
+
+            Validate();
+
+            // validate block to add
+            var block = new Block(_chain.Last.Header.GetHash(), _chain.Last.Header.Index, DateTime.UtcNow.ToUnixTimeSeconds())
+            {
+                Data = data
+            };
+            block.ValidateDataIntegrity();
+            if (block.Header.PreviousHash != _chain.Last.Header.GetHash()) throw new BlockInvalidException();
+            if (block.Header.Index != _chain.Last.Header.Index + 1) throw new BlockInvalidException();
+
+            _chain.AddLast(block.Header);
+            _store.Append(block);
         }
 
         private void Validate()
