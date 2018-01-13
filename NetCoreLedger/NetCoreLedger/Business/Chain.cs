@@ -1,6 +1,8 @@
-﻿using System.Collections.Concurrent;
+﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using NetCoreLedger.Domain;
+using NetCoreLedger.Utils;
 
 namespace NetCoreLedger.Business
 {
@@ -55,5 +57,26 @@ namespace NetCoreLedger.Business
         }
 
         public ChainBlock this[uint i] => GetChainBlock(i);
+
+        public void Validate()
+        {
+            var current = Last;
+            while (current != null)
+            {
+                if (current.BlockHash == Genesis.BlockHash)
+                {
+                    if (current.Previous != null) throw new ChainInvalidException();
+                    if (current.Index != 0) throw new ChainInvalidException();
+                }
+                else
+                {
+                    if (current.BlockHash != current.Header.GetHash()) throw new ChainInvalidException();
+                    if (current.Previous.BlockHash != current.Header.GetHash()) throw new ChainInvalidException();
+                    if (current.Previous.Index + 1 != current.Index) throw new ChainInvalidException();
+                }
+
+                current = current.Previous;
+            }
+        }
     }
 }

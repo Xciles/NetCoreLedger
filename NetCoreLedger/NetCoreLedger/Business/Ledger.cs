@@ -33,7 +33,15 @@ namespace NetCoreLedger.Business
 
         public void AddBlock(Block block)
         {
-            //_chain.
+            // Validate chain
+            // Add to chain
+            // Add to store
+            _chain.Validate();
+
+        }
+
+        private void Validate()
+        {
         }
     }
 }
