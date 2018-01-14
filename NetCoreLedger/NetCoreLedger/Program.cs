@@ -13,9 +13,11 @@ namespace NetCoreLedger
         {
             Console.WriteLine("Hello World!");
 
-            TestBlock();
+            //TestBlock();
 
-            TestChain();
+            //TestChain();
+
+            TestLedger();
 
             Console.ReadKey();
         }
@@ -104,6 +106,26 @@ namespace NetCoreLedger
                 
             }
 
+        }
+
+        private static void TestLedger()
+        {
+            var ledger = new Ledger();
+            ledger.Initialize();
+
+            foreach (var blockHeader in ledger.EnumerateChain())
+            {
+                
+            }
+
+            ledger.AddBlockByData("TestData 1");
+            ledger.AddBlockByData("TestData 2");
+            ledger.AddBlockByData("TestData 3");
+
+            foreach (var blockHeader in ledger.EnumerateChain())
+            {
+
+            }
         }
 
         //public static void Main(string[] args)

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using NetCoreLedger.Domain;
 using NetCoreLedger.Extensions;
 using NetCoreLedger.Utils;
@@ -32,28 +33,19 @@ namespace NetCoreLedger.Business
                 _chain.AddLast(genesis.Header);
                 _store.Append(genesis);
             }
+
+            ValidateLedger();
         }
 
         public void AddBlock(Block block)
         {
-            // Validate chain
-            // Add to chain
-            // Add to store
-            _chain.Validate();
-            _store.Validate();
-
-            Validate();
-
-            // validate block to add
-            block.ValidateDataIntegrity();
-            if (block.Header.PreviousHash != _chain.Last.Header.GetHash()) throw new BlockInvalidException();
-            if (block.Header.Index != _chain.Last.Header.Index + 1) throw new BlockInvalidException();
+            Validate(block);
 
             _chain.AddLast(block.Header);
             _store.Append(block);
         }
 
-        public void AddBlockByData(string data)
+        private void Validate(Block block)
         {
             // Validate chain
             // Add to chain
@@ -61,23 +53,34 @@ namespace NetCoreLedger.Business
             _chain.Validate();
             _store.Validate();
 
-            Validate();
+            ValidateLedger();
 
             // validate block to add
-            var block = new Block(_chain.Last.Header.GetHash(), _chain.Last.Header.Index, DateTime.UtcNow.ToUnixTimeSeconds())
+            block.ValidateDataIntegrity();
+            if (block.Header.PreviousHash != _chain.Last.Header.GetHash()) throw new BlockInvalidException();
+            if (block.Header.Index != _chain.Last.Header.Index + 1) throw new BlockInvalidException();
+        }
+
+        public void AddBlockByData(string data)
+        {
+            // validate block to add
+            var block = new Block(_chain.Last.Header.GetHash(), _chain.Count, DateTime.UtcNow.ToUnixTimeSeconds())
             {
                 Data = data
             };
 
-            block.ValidateDataIntegrity();
-            if (block.Header.PreviousHash != _chain.Last.Header.GetHash()) throw new BlockInvalidException();
-            if (block.Header.Index != _chain.Last.Header.Index + 1) throw new BlockInvalidException();
+            Validate(block);
 
             _chain.AddLast(block.Header);
             _store.Append(block);
         }
 
-        private void Validate()
+        public IEnumerable<BlockHeader> EnumerateChain()
+        {
+            return _chain.Enumerate();
+        }
+
+        private void ValidateLedger()
         {
             foreach (var blockHeader in _chain.Enumerate())
             {

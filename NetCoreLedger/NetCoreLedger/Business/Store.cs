@@ -119,7 +119,7 @@ namespace NetCoreLedger.Business
         public void SyncChain(Chain chain)
         {
             // we build that chain
-            foreach (var storageItem in EnumerateFile(true))
+            foreach (var storageItem in EnumerateFile())
             {
                 // validate block 
                 storageItem.Block.ValidateDataIntegrity();
@@ -191,7 +191,7 @@ namespace NetCoreLedger.Business
                 if (storageItem.Header.IdHash != storageItem.Block.Header.GetHash()) throw new StoreInvalidException();
                 storageItem.Block.ValidateDataIntegrity();
 
-                if (previous != null && previous.Block.Header.PreviousHash != storageItem.Block.Header.GetHash()) throw new StoreInvalidException();
+                if (previous != null && storageItem.Block.Header.PreviousHash != previous.Block.Header.GetHash()) throw new StoreInvalidException();
 
                 previous = storageItem;
             }
